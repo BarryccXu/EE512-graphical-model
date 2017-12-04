@@ -93,5 +93,23 @@ class Graph(object):
         for i in range(0, len(data_list), 2):
             self.nodes[data_list[i]].set_evidence(data_list[i+1])
             
-            
+class Junction_tree_cloud(object):
+    def __init__(self, nodes, neighbor):
+        self.nodes = nodes
+        self.neighbor = neighbor
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
     
