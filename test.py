@@ -4,6 +4,11 @@ from read_data import read_uai
 
 
 graph = read_uai("../data/test.uai")
+for clique in graph.cliques:
+    print("-------------------")
+    for node in clique.nodes:
+        print(node.index)
+
 EI.min_fill(graph)
 for node in graph.nodes:
     print(node.get_neighbor_index())
@@ -16,5 +21,4 @@ for clique in max_cliques:
 
 clouds = EI.generate_junction_tree(max_cliques)
 
-for cloud in clouds:
-    print(cloud.neighbor)
+EI.rotate_axis(max_cliques[0], graph.cliques[9])

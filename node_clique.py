@@ -38,7 +38,7 @@ class Node(object):
         self.evidence = val
     
 class Clique(object):
-    def __init__(self, nodes = [], table = None):
+    def __init__(self, nodes = None, table = None):
         self.nodes = nodes
         self.table = table
     

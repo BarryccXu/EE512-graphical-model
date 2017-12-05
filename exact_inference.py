@@ -50,7 +50,10 @@ def MSC(graph):
         pre_node_elim = node_elim
     pre_c.add(pre_node_elim)
     max_cliques.append(pre_c)
-    return max_cliques
+    max_cliques_object = []
+    for clique_set in max_cliques:
+        max_cliques_object.append(Clique(list(clique_set), None))
+    return max_cliques_object
     
 def generate_junction_tree(max_cliques):
     cliques = []
@@ -67,8 +70,35 @@ def generate_junction_tree(max_cliques):
         cliques[index].neighbor.add(cliques[i])
         cliques[i].neighbor.add(cliques[index])
     return cliques[0]
-            
+
+def rotate_axis(clique_1, clique_2):
+    index_1 = []
+    index_2 = []
+    for node in clique_1.nodes:
+        index_1.append(node.index)
+    for node in clique_2.nodes:
+        index_2.append(node.index)
+    print(index_1)
+    print(index_2)
+    left = []
+    right = []
+    index = 0
+    for i in index_1:
+        if i in index_2:
+            left.append(index)
+        else:
+            right.append(index)
+        index += 1
+    left.extend(right)
+    return left
         
+
+    
+            
+#def initialize_table(graph, max_cliques):
+#    for clique in graph.cliques:
+        
+         
         
     
     
