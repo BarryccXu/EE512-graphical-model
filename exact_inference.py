@@ -1,5 +1,9 @@
-from node_clique import Node, Clique, Graph, Junction_tree_cloud
+from node_clique import Node, Clique, Graph, Junction_tree_cloud, Junction_tree_separator, Junction_tree
+import numpy as np
 def min_fill(graph):
+    '''
+    the min-fill-in algorithm is to triangluate the graph
+    '''
     nodes = graph.get_nodes()
     unvisited_nodes = set(nodes)
     while not len(unvisited_nodes) == 0:
@@ -25,6 +29,9 @@ def min_fill(graph):
         unvisited_nodes.remove(node_elim)
                         
 def MSC(graph):
+    '''
+    
+    '''
     nodes = graph.get_nodes()
     max_cliques = []
     isvisited = [False] * len(nodes)
@@ -44,32 +51,43 @@ def MSC(graph):
                 max_c = c
         if(len(pre_c) >= len(max_c) and len(max_c) != 0):
             pre_c.add(pre_node_elim)
-            max_cliques.append(pre_c)
+            max_cliques.append(list(pre_c))
         isvisited[node_elim.index] = True
         pre_c = max_c
         pre_node_elim = node_elim
     pre_c.add(pre_node_elim)
     max_cliques.append(pre_c)
-    max_cliques_object = []
-    for clique_set in max_cliques:
-        max_cliques_object.append(Clique(list(clique_set), None))
-    return max_cliques_object
+    max_cliques_objects = []
+    # get cardinality from nodes to generate table
+    cardi_list = []
+    for clique in max_cliques:
+        tmp = []
+        for node in clique:
+            tmp.append(node.cardinality)
+        cardi_list.append(tmp)
+    for i in range(len(max_cliques)):
+        max_cliques_objects.append(Clique(list(max_cliques[i]), np.ones(cardi_list[i])))        
+    return max_cliques_objects
     
 def generate_junction_tree(max_cliques):
+    '''
+    add neigbors for each cloud
+    '''
     cliques = []
     for clique in max_cliques:
-        cliques.append(Junction_tree_cloud(clique, set()))
-    for i in range(0, len(cliques)):
+        cliques.append(Junction_tree_cloud(clique.nodes, list(), clique.table))
+    #generate neighbors for junction cloud
+    for i in range(1, len(cliques)):
         index = 0
         max_num_neighbor = 0
         for j in range(0, i):
-            num_neighbor = len(cliques[i].nodes & cliques[j].nodes)
+            num_neighbor = len(set(cliques[i].nodes) & set(cliques[j].nodes))
             if(num_neighbor > max_num_neighbor):
                 max_num_neighbor = num_neighbor
                 index = j
-        cliques[index].neighbor.add(cliques[i])
-        cliques[i].neighbor.add(cliques[index])
-    return cliques[0]
+        cliques[index].neighbor.append(cliques[i])
+        cliques[i].neighbor.append(cliques[index])
+    return Junction_tree(cliques)
 
 def rotate_axis(clique_1, clique_2):
     index_1 = []
@@ -78,28 +96,75 @@ def rotate_axis(clique_1, clique_2):
         index_1.append(node.index)
     for node in clique_2.nodes:
         index_2.append(node.index)
-    print(index_1)
-    print(index_2)
-    left = []
-    right = []
+    #print(index_1)
+    #print(index_2)
+    index_2_map = {}
+    delta_index = len(index_1) - len(index_2)
+    for i in range(len(index_2)):
+        index_2_map[index_2[i]] = i + delta_index
+    #print(index_2_map)
+    rotated_axis = []
     index = 0
-    for i in index_1:
-        if i in index_2:
-            left.append(index)
+    for num in index_1:
+        if num in index_2_map:
+            rotated_axis.append(index_2_map[num])
         else:
-            right.append(index)
-        index += 1
-    left.extend(right)
-    return left
-        
+            rotated_axis.append(index)
+            index += 1
+    return rotated_axis
 
+def update_table(clique_1, clique_2):
+    rotate = rotate_axis(clique_1, clique_2)
+    table_1 = clique_1.table
+    table_2 = clique_2.table
+    table_1_rotated = np.moveaxis(table_1, range(len(clique_1.nodes)), rotate)
+    table_1_rotated = table_1_rotated * table_2
+    table_1 = np.moveaxis(table_1_rotated, rotate, range(len(clique_1.nodes)))
+    clique_1.table = table_1
+            
+def initialize_table(junction_tree, graph):
+    '''
+    initialize tables in the junction_tree_cloud based on tables from given '.uai' file
+    '''
+    for clique in graph.cliques:
+        for cloud in junction_tree.junction_tree_clouds:
+            if(set(clique.nodes).issubset(set(cloud.nodes))):
+                update_table(cloud, clique)
+                continue
+
+def separator_sum_index(clique, separator):
+    index_c = []
+    index_s = []
+    idx = []
+    for node in clique.nodes:
+        index_c.append(node.index)
+    for node in separator.nodes:
+        index_s.append(node.index)
+    for i in range(len(index_c)):
+        if index_c[i] in index_s:
+            idx.append(i)
+    return tuple(idx)
+
+def JT_neighbor_map(junction_tree):
+    jt_map = dict()
+    for cloud in junction_tree.junction_tree_clouds:
+        jt_map[cloud] = cloud.neighbor
+    return jt_map
+
+def mpp_forward(root, jt_map):
+    for child in root.neighbor:
+        if child in jt_map[root]:
+            if root in jt_map[child]:
+                jt_map[child].remove(root)
+            mpp_forward(child, jt_map)
+            separator = Junction_tree_separator([i for i in root.nodes if i in child.nodes], np.array([]))
+            idx = separator_sum_index(root, separator)
+            tmp = np.sum(root.table, axis = idx)
+            separator.table = tmp
+            update_table(root, separator)
+    
     
             
-#def initialize_table(graph, max_cliques):
-#    for clique in graph.cliques:
-        
-         
-        
     
     
     

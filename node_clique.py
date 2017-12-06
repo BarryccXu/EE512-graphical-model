@@ -94,12 +94,19 @@ class Graph(object):
             self.nodes[data_list[i]].set_evidence(data_list[i+1])
             
 class Junction_tree_cloud(object):
-    def __init__(self, nodes, neighbor):
+    def __init__(self, nodes, neighbor, table):
         self.nodes = nodes
         self.neighbor = neighbor
-    
+        self.table = table
 
+class Junction_tree_separator(object):
+    def __init__(self, nodes, table):
+        self.nodes = nodes
+        self.table = table    
 
+class Junction_tree(object):
+    def __init__(self, junction_tree_clouds):
+        self.junction_tree_clouds = junction_tree_clouds
 
 
 
