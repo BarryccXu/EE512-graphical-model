@@ -74,8 +74,11 @@ def generate_junction_tree(max_cliques):
     add neigbors for each cloud
     '''
     cliques = []
-    for clique in max_cliques:
-        cliques.append(Junction_tree_cloud(clique.nodes, list(), clique.table))
+    for i, clique in enumerate(max_cliques):
+        tmp = []
+        for node in clique.nodes:
+            tmp.append(node.index)
+        cliques.append(Junction_tree_cloud(i, clique.nodes, tmp, list(), clique.table))
     #generate neighbors for junction cloud
     for i in range(1, len(cliques)):
         index = 0
@@ -89,12 +92,11 @@ def generate_junction_tree(max_cliques):
         cliques[i].neighbor.append(cliques[index])
     return Junction_tree(cliques)
 
-def rotate_axis(clique_1, clique_2):
-    index_1 = []
+def rotate_axis(cloud, clique):
+
+    index_1 = cloud.nodes_index
     index_2 = []
-    for node in clique_1.nodes:
-        index_1.append(node.index)
-    for node in clique_2.nodes:
+    for node in clique.nodes:
         index_2.append(node.index)
     #print(index_1)
     #print(index_2)
@@ -132,12 +134,10 @@ def initialize_table(junction_tree, graph):
                 update_table(cloud, clique)
                 continue
 
-def separator_sum_index(clique, separator):
-    index_c = []
+def separator_sum_index(cloud, separator):
+    index_c = cloud.nodes_index
     index_s = []
     idx = []
-    for node in clique.nodes:
-        index_c.append(node.index)
     for node in separator.nodes:
         index_s.append(node.index)
     for i in range(len(index_c)):
@@ -148,18 +148,18 @@ def separator_sum_index(clique, separator):
 def JT_neighbor_map(junction_tree):
     jt_map = dict()
     for cloud in junction_tree.junction_tree_clouds:
-        jt_map[cloud] = cloud.neighbor
+        jt_map[cloud.index] = cloud.get_neighbor_index()
     return jt_map
 
 def mpp_forward(root, jt_map):
     for child in root.neighbor:
-        if child in jt_map[root]:
-            if root in jt_map[child]:
-                jt_map[child].remove(root)
+        if (child.index in jt_map[root.index]):
+            #jt_map[root.index].remove(child.index)
+            jt_map[child.index].remove(root.index)
             mpp_forward(child, jt_map)
             separator = Junction_tree_separator([i for i in root.nodes if i in child.nodes], np.array([]))
-            idx = separator_sum_index(root, separator)
-            tmp = np.sum(root.table, axis = idx)
+            idx = separator_sum_index(child, separator)
+            tmp = np.sum(child.table, axis = idx)
             separator.table = tmp
             update_table(root, separator)
     

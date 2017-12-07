@@ -23,10 +23,11 @@ JT.junction_tree_clouds[1].table
 JT.junction_tree_clouds[1].nodes[0].index
 JT.junction_tree_clouds[1].nodes[1].index
 '''
-
+print(JT.junction_tree_clouds[0].table)
+print(JT.junction_tree_clouds[1].table)
 
 
 jt_map = EI.JT_neighbor_map(JT)
 
 EI.mpp_forward(JT.junction_tree_clouds[0],jt_map)
-np.sum(JT.junction_tree_clouds[0].table)
+print(np.sum(JT.junction_tree_clouds[0].table))

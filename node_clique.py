@@ -94,10 +94,19 @@ class Graph(object):
             self.nodes[data_list[i]].set_evidence(data_list[i+1])
             
 class Junction_tree_cloud(object):
-    def __init__(self, nodes, neighbor, table):
+    def __init__(self, index, nodes, nodes_index, neighbor, table):
+        self.index = index
         self.nodes = nodes
+        self.nodes_index = nodes_index
         self.neighbor = neighbor
         self.table = table
+    
+    def get_neighbor_index(self):
+        index_list = []
+        for cloud in self.neighbor:
+            index_list.append(cloud.index)
+        return index_list
+        
 
 class Junction_tree_separator(object):
     def __init__(self, nodes, table):
