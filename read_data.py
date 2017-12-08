@@ -40,12 +40,12 @@ def read_uai(file):
     #print(node.get_neighbor_index())
     return graph
     
-    
+'''    
 if __name__ == "__main__":
     graph = read_uai("../data/3.uai")
     graph.add_uai_evid("../data/3.uai.evid")    
     
-    
+'''    
     
     
     

@@ -142,7 +142,7 @@ def separator_sum_index(cloud, separator):
     for node in separator.nodes:
         index_s.append(node.index)
     for i in range(len(index_c)):
-        if index_c[i] in index_s:
+        if index_c[i] not in index_s:
             idx.append(i)
     return tuple(idx)
 
@@ -153,6 +153,8 @@ def JT_neighbor_map(junction_tree):
     return jt_map
 
 def mpp_forward(root, jt_map):
+    if(len(jt_map[root.index]) == 0):
+        return
     for child in root.neighbor:
         if (child.index in jt_map[root.index]):
             jt_map[root.index].remove(child.index)
@@ -161,8 +163,7 @@ def mpp_forward(root, jt_map):
             separator = Junction_tree_separator([i for i in child.nodes if i in root.nodes],
                                                 np.array([]))
             idx = separator_sum_index(child, separator)
-            tmp = np.sum(child.table, axis = idx)
-            separator.table = tmp
+            separator.table = np.sum(child.table, axis = idx)
             update_table(root, separator)
             #print(root)
     
