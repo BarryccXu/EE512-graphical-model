@@ -8,6 +8,7 @@ def min_fill(graph):
     unvisited_nodes = set(nodes)
     while not len(unvisited_nodes) == 0:
         min_edge_fillin = len(unvisited_nodes)
+        node_elim = Node(None)
         for node in unvisited_nodes:
             edge_fillin = 0
             for neighbor in node.neighbor:
@@ -132,7 +133,7 @@ def initialize_table(junction_tree, graph):
         for cloud in junction_tree.junction_tree_clouds:
             if(set(clique.nodes).issubset(set(cloud.nodes))):
                 update_table(cloud, clique)
-                continue
+                break
 
 def separator_sum_index(cloud, separator):
     index_c = cloud.nodes_index
@@ -148,20 +149,22 @@ def separator_sum_index(cloud, separator):
 def JT_neighbor_map(junction_tree):
     jt_map = dict()
     for cloud in junction_tree.junction_tree_clouds:
-        jt_map[cloud.index] = cloud.get_neighbor_index()
+        jt_map[cloud.index] = set(cloud.get_neighbor_index())
     return jt_map
 
 def mpp_forward(root, jt_map):
     for child in root.neighbor:
         if (child.index in jt_map[root.index]):
-            #jt_map[root.index].remove(child.index)
+            jt_map[root.index].remove(child.index)
             jt_map[child.index].remove(root.index)
             mpp_forward(child, jt_map)
-            separator = Junction_tree_separator([i for i in root.nodes if i in child.nodes], np.array([]))
+            separator = Junction_tree_separator([i for i in child.nodes if i in root.nodes],
+                                                np.array([]))
             idx = separator_sum_index(child, separator)
             tmp = np.sum(child.table, axis = idx)
             separator.table = tmp
             update_table(root, separator)
+            #print(root)
     
     
             

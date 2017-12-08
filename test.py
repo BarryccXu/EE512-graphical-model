@@ -3,9 +3,7 @@ from read_data import read_uai
 import numpy as np
 #from node_clique import Node, Clique, Graph, Junction_tree_cloud
 
-
-
-graph = read_uai("../data/test_my.uai")
+graph = read_uai("../data/3.uai")
 EI.min_fill(graph)
 max_cliques = EI.MSC(graph)
 JT = EI.generate_junction_tree(max_cliques)
@@ -31,3 +29,6 @@ jt_map = EI.JT_neighbor_map(JT)
 
 EI.mpp_forward(JT.junction_tree_clouds[0],jt_map)
 print(np.sum(JT.junction_tree_clouds[0].table))
+
+#for cloud in JT.junction_tree_clouds:
+#    print(cloud.nodes_index)
